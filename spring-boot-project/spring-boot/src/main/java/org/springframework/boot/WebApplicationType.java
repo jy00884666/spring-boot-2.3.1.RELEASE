@@ -62,7 +62,7 @@ public enum WebApplicationType {
 		// 如果存在DispatcherHandler,不是DispatcherServlet,也不是ServletContainer
 		if (ClassUtils.isPresent(WEBFLUX_INDICATOR_CLASS, null) && !ClassUtils.isPresent(WEBMVC_INDICATOR_CLASS, null)
 				&& !ClassUtils.isPresent(JERSEY_INDICATOR_CLASS, null)) {
-			// 表示是REACTIVE类型项目
+			// 表示是reactive类型项目
 			return WebApplicationType.REACTIVE;
 		}
 		// 如果不存在Servlet也没有存在ConfigurableWebApplicationContext

@@ -20,5 +20,7 @@ dependencies {
     // spring-boot-starter依赖
     compile(project(":spring-boot-project:spring-boot-starters:spring-boot-starter"))
 
-
+    // 引入SDK依赖
+    //compile("commons-lang:commons-lang:2.6")//简写
+    compile(group: "commons-lang", name: "commons-lang", version: "2.6")
 }
