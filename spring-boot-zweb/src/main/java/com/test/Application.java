@@ -13,6 +13,9 @@ import org.springframework.context.annotation.ComponentScan;
 public class Application {
 	
 	public static void main(String[] args) {
+		// 打印默认编码
+		System.out.println("打印默认编码:"+System.getProperty("file.encoding"));
+		
 		// 启动类入口
 		ConfigurableApplicationContext applicationContext = SpringApplication.run(Application.class);
 		// 从 SpringBoot 容器中获取对象

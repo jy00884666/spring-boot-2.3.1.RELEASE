@@ -6,6 +6,9 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 public class MyText {
 	
 	public static void main(String[] args) {
+		// 打印默认编码
+		System.out.println("打印默认编码:"+System.getProperty("file.encoding"));
+		
 		// 创建Spring容器
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Person.class);
 		// 获取对象Bean,对象中可以没有 @Component 注解
