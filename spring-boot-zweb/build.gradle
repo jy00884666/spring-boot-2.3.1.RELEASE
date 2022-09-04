@@ -34,5 +34,11 @@ dependencies {
 
     // Lombok依赖
     compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.16.0'
+    /*使用了 annotationProcessor 的指的是编译时注解,是APT(Annotation Processing Tool)工具中的一种，随着Android Gradle 插件 2.2 版本的发布，
+     *Android Gradle 插件提供了名为 annotationProcessor 的功能来完全代替 android-apt，不需要引入，可以直接在build.gradle文件中使用。*/
+    // 需要在Gradle的依赖中加入annotationProcessor,否则Lombok还是会失效,运行时报错
+    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.16.0'
+
+
 
 }

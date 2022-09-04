@@ -22,6 +22,8 @@ public class Application {
 		ConfigurableApplicationContext context = SpringApplication.run(Application.class);
 		// 从 SpringBoot 容器中获取对象
 		Person person = context.getBean(Person.class);
+		person.setName("aaa");
+		person.setSex("18");
 		System.out.println("person=" + person);
 		
 		// 超出目录,需要用 scanBasePackages 属性才能扫描到,也可以通过@Bean的方式

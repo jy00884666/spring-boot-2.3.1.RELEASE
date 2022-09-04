@@ -53,49 +53,48 @@ import org.springframework.util.StringUtils;
 
 /**
  * {@link ReactiveWebServerFactory} that can be used to create a {@link TomcatWebServer}.
- *
  * @author Brian Clozel
  * @author HaiTao Zhang
  * @since 2.0.0
  */
 public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFactory
 		implements ConfigurableTomcatWebServerFactory {
-
+	
 	private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
-
+	
 	/**
 	 * The class name of default protocol used.
 	 */
 	public static final String DEFAULT_PROTOCOL = "org.apache.coyote.http11.Http11NioProtocol";
-
+	
 	private File baseDirectory;
-
+	
 	private final List<Valve> engineValves = new ArrayList<>();
-
+	
 	private List<LifecycleListener> contextLifecycleListeners = getDefaultLifecycleListeners();
-
+	
 	private Set<TomcatContextCustomizer> tomcatContextCustomizers = new LinkedHashSet<>();
-
+	
 	private Set<TomcatConnectorCustomizer> tomcatConnectorCustomizers = new LinkedHashSet<>();
-
+	
 	private Set<TomcatProtocolHandlerCustomizer<?>> tomcatProtocolHandlerCustomizers = new LinkedHashSet<>();
-
+	
 	private final List<Connector> additionalTomcatConnectors = new ArrayList<>();
-
+	
 	private String protocol = DEFAULT_PROTOCOL;
-
+	
 	private Charset uriEncoding = DEFAULT_CHARSET;
-
+	
 	private int backgroundProcessorDelay;
-
+	
 	private boolean disableMBeanRegistry = true;
-
+	
 	/**
 	 * Create a new {@link TomcatReactiveWebServerFactory} instance.
 	 */
 	public TomcatReactiveWebServerFactory() {
 	}
-
+	
 	/**
 	 * Create a new {@link TomcatReactiveWebServerFactory} that listens for requests using
 	 * the specified port.
@@ -104,13 +103,13 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
 	public TomcatReactiveWebServerFactory(int port) {
 		super(port);
 	}
-
+	
 	private static List<LifecycleListener> getDefaultLifecycleListeners() {
 		AprLifecycleListener aprLifecycleListener = new AprLifecycleListener();
 		return AprLifecycleListener.isAprAvailable() ? new ArrayList<>(Arrays.asList(aprLifecycleListener))
 				: new ArrayList<>();
 	}
-
+	
 	@Override
 	public WebServer getWebServer(HttpHandler httpHandler) {
 		if (this.disableMBeanRegistry) {
@@ -133,14 +132,14 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
 		prepareContext(tomcat.getHost(), servlet);
 		return getTomcatWebServer(tomcat);
 	}
-
+	
 	private void configureEngine(Engine engine) {
 		engine.setBackgroundProcessorDelay(this.backgroundProcessorDelay);
 		for (Valve valve : this.engineValves) {
 			engine.getPipeline().addValve(valve);
 		}
 	}
-
+	
 	protected void prepareContext(Host host, TomcatHttpHandlerAdapter servlet) {
 		File docBase = createTempDir("tomcat-docbase");
 		TomcatEmbeddedContext context = new TomcatEmbeddedContext();
@@ -158,13 +157,13 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
 		host.addChild(context);
 		configureContext(context);
 	}
-
+	
 	private void skipAllTldScanning(TomcatEmbeddedContext context) {
 		StandardJarScanFilter filter = new StandardJarScanFilter();
 		filter.setTldSkip("*.jar");
 		context.getJarScanner().setJarScanFilter(filter);
 	}
-
+	
 	/**
 	 * Configure the Tomcat {@link Context}.
 	 * @param context the Tomcat context
@@ -174,7 +173,7 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
 		new DisableReferenceClearingContextCustomizer().customize(context);
 		this.tomcatContextCustomizers.forEach((customizer) -> customizer.customize(context));
 	}
-
+	
 	protected void customizeConnector(Connector connector) {
 		int port = Math.max(getPort(), 0);
 		connector.setPort(port);
@@ -199,36 +198,36 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
 			customizer.customize(connector);
 		}
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	private void invokeProtocolHandlerCustomizers(ProtocolHandler protocolHandler) {
 		LambdaSafe.callbacks(TomcatProtocolHandlerCustomizer.class, this.tomcatProtocolHandlerCustomizers,
 				protocolHandler).invoke((customizer) -> customizer.customize(protocolHandler));
 	}
-
+	
 	private void customizeProtocol(AbstractProtocol<?> protocol) {
 		if (getAddress() != null) {
 			protocol.setAddress(getAddress());
 		}
 	}
-
+	
 	private void customizeSsl(Connector connector) {
 		new SslConnectorCustomizer(getSsl(), getSslStoreProvider()).customize(connector);
 		if (getHttp2() != null && getHttp2().isEnabled()) {
 			connector.addUpgradeProtocol(new Http2Protocol());
 		}
 	}
-
+	
 	@Override
 	public void setBaseDirectory(File baseDirectory) {
 		this.baseDirectory = baseDirectory;
 	}
-
+	
 	@Override
 	public void setBackgroundProcessorDelay(int delay) {
 		this.backgroundProcessorDelay = delay;
 	}
-
+	
 	/**
 	 * Set {@link TomcatContextCustomizer}s that should be applied to the Tomcat
 	 * {@link Context}. Calling this method will replace any existing customizers.
@@ -238,7 +237,7 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
 		Assert.notNull(tomcatContextCustomizers, "TomcatContextCustomizers must not be null");
 		this.tomcatContextCustomizers = new LinkedHashSet<>(tomcatContextCustomizers);
 	}
-
+	
 	/**
 	 * Returns a mutable collection of the {@link TomcatContextCustomizer}s that will be
 	 * applied to the Tomcat {@link Context}.
@@ -247,7 +246,7 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
 	public Collection<TomcatContextCustomizer> getTomcatContextCustomizers() {
 		return this.tomcatContextCustomizers;
 	}
-
+	
 	/**
 	 * Add {@link TomcatContextCustomizer}s that should be added to the Tomcat
 	 * {@link Context}.
@@ -258,7 +257,7 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
 		Assert.notNull(tomcatContextCustomizers, "TomcatContextCustomizers must not be null");
 		this.tomcatContextCustomizers.addAll(Arrays.asList(tomcatContextCustomizers));
 	}
-
+	
 	/**
 	 * Set {@link TomcatConnectorCustomizer}s that should be applied to the Tomcat
 	 * {@link Connector}. Calling this method will replace any existing customizers.
@@ -269,7 +268,7 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
 		Assert.notNull(tomcatConnectorCustomizers, "TomcatConnectorCustomizers must not be null");
 		this.tomcatConnectorCustomizers = new LinkedHashSet<>(tomcatConnectorCustomizers);
 	}
-
+	
 	/**
 	 * Add {@link TomcatConnectorCustomizer}s that should be added to the Tomcat
 	 * {@link Connector}.
@@ -280,7 +279,7 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
 		Assert.notNull(tomcatConnectorCustomizers, "TomcatConnectorCustomizers must not be null");
 		this.tomcatConnectorCustomizers.addAll(Arrays.asList(tomcatConnectorCustomizers));
 	}
-
+	
 	/**
 	 * Returns a mutable collection of the {@link TomcatConnectorCustomizer}s that will be
 	 * applied to the Tomcat {@link Connector}.
@@ -289,7 +288,7 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
 	public Collection<TomcatConnectorCustomizer> getTomcatConnectorCustomizers() {
 		return this.tomcatConnectorCustomizers;
 	}
-
+	
 	/**
 	 * Set {@link TomcatProtocolHandlerCustomizer}s that should be applied to the Tomcat
 	 * {@link Connector}. Calling this method will replace any existing customizers.
@@ -301,7 +300,7 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
 		Assert.notNull(tomcatProtocolHandlerCustomizers, "TomcatProtocolHandlerCustomizers must not be null");
 		this.tomcatProtocolHandlerCustomizers = new LinkedHashSet<>(tomcatProtocolHandlerCustomizers);
 	}
-
+	
 	/**
 	 * Add {@link TomcatProtocolHandlerCustomizer}s that should be added to the Tomcat
 	 * {@link Connector}.
@@ -313,7 +312,7 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
 		Assert.notNull(tomcatProtocolHandlerCustomizers, "TomcatProtocolHandlerCustomizers must not be null");
 		this.tomcatProtocolHandlerCustomizers.addAll(Arrays.asList(tomcatProtocolHandlerCustomizers));
 	}
-
+	
 	/**
 	 * Returns a mutable collection of the {@link TomcatProtocolHandlerCustomizer}s that
 	 * will be applied to the Tomcat {@link Connector}.
@@ -323,7 +322,7 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
 	public Collection<TomcatProtocolHandlerCustomizer<?>> getTomcatProtocolHandlerCustomizers() {
 		return this.tomcatProtocolHandlerCustomizers;
 	}
-
+	
 	/**
 	 * Add {@link Connector}s in addition to the default connector, e.g. for SSL or AJP
 	 * @param connectors the connectors to add
@@ -333,7 +332,7 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
 		Assert.notNull(connectors, "Connectors must not be null");
 		this.additionalTomcatConnectors.addAll(Arrays.asList(connectors));
 	}
-
+	
 	/**
 	 * Returns a mutable collection of the {@link Connector}s that will be added to the
 	 * Tomcat.
@@ -343,13 +342,13 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
 	public List<Connector> getAdditionalTomcatConnectors() {
 		return this.additionalTomcatConnectors;
 	}
-
+	
 	@Override
 	public void addEngineValves(Valve... engineValves) {
 		Assert.notNull(engineValves, "Valves must not be null");
 		this.engineValves.addAll(Arrays.asList(engineValves));
 	}
-
+	
 	/**
 	 * Returns a mutable collection of the {@link Valve}s that will be applied to the
 	 * Tomcat {@link Engine}.
@@ -358,7 +357,7 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
 	public List<Valve> getEngineValves() {
 		return this.engineValves;
 	}
-
+	
 	/**
 	 * Set the character encoding to use for URL decoding. If not specified 'UTF-8' will
 	 * be used.
@@ -368,7 +367,7 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
 	public void setUriEncoding(Charset uriEncoding) {
 		this.uriEncoding = uriEncoding;
 	}
-
+	
 	/**
 	 * Returns the character encoding to use for URL decoding.
 	 * @return the URI encoding
@@ -376,7 +375,7 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
 	public Charset getUriEncoding() {
 		return this.uriEncoding;
 	}
-
+	
 	/**
 	 * Set {@link LifecycleListener}s that should be applied to the Tomcat
 	 * {@link Context}. Calling this method will replace any existing listeners.
@@ -386,7 +385,7 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
 		Assert.notNull(contextLifecycleListeners, "ContextLifecycleListeners must not be null");
 		this.contextLifecycleListeners = new ArrayList<>(contextLifecycleListeners);
 	}
-
+	
 	/**
 	 * Returns a mutable collection of the {@link LifecycleListener}s that will be applied
 	 * to the Tomcat {@link Context}.
@@ -395,7 +394,7 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
 	public Collection<LifecycleListener> getContextLifecycleListeners() {
 		return this.contextLifecycleListeners;
 	}
-
+	
 	/**
 	 * Add {@link LifecycleListener}s that should be added to the Tomcat {@link Context}.
 	 * @param contextLifecycleListeners the listeners to add
@@ -404,7 +403,7 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
 		Assert.notNull(contextLifecycleListeners, "ContextLifecycleListeners must not be null");
 		this.contextLifecycleListeners.addAll(Arrays.asList(contextLifecycleListeners));
 	}
-
+	
 	/**
 	 * Factory method called to create the {@link TomcatWebServer}. Subclasses can
 	 * override this method to return a different {@link TomcatWebServer} or apply
@@ -415,7 +414,7 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
 	protected TomcatWebServer getTomcatWebServer(Tomcat tomcat) {
 		return new TomcatWebServer(tomcat, getPort() >= 0, getShutdown());
 	}
-
+	
 	/**
 	 * The Tomcat protocol to use when create the {@link Connector}.
 	 * @param protocol the protocol
@@ -425,7 +424,7 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
 		Assert.hasLength(protocol, "Protocol must not be empty");
 		this.protocol = protocol;
 	}
-
+	
 	/**
 	 * Set whether the factory should disable Tomcat's MBean registry prior to creating
 	 * the server.
@@ -435,5 +434,5 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
 	public void setDisableMBeanRegistry(boolean disableMBeanRegistry) {
 		this.disableMBeanRegistry = disableMBeanRegistry;
 	}
-
+	
 }
