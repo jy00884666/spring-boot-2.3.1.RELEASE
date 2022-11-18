@@ -1,3 +1,4 @@
+// 引入插件
 plugins {
     id 'java'
 }
@@ -5,12 +6,15 @@ plugins {
 group 'org.springframework.boot'
 version '2.3.1.RELEASE'
 
+// jdk版本号
 sourceCompatibility = 1.8
 
+// 仓库配置，mavenCentral()代表中央仓库
 repositories {
     mavenCentral()
 }
 
+// 依赖的坐标集合
 dependencies {
     /**
      * compile : 依赖的包，编译并打包到最终的 apk 文件中。
@@ -27,18 +31,31 @@ dependencies {
 
     // spring-boot-starter依赖
     compile(project(":spring-boot-project:spring-boot-starters:spring-boot-starter"))
+    compile(project(":spring-boot-project:spring-boot-starters:spring-boot-starter-web"))
 
     // 引入SDK依赖
     //compile("commons-lang:commons-lang:2.6")//简写
     compile(group: "commons-lang", name: "commons-lang", version: "2.6")
 
+    /**
+     * compileOnly：只编译时有效，不参与打包。代替旧版本的provided
+     * annotationProcessor：管理注解处理器，并将其添加处处理器类路径中
+     *
+     * 针对5.0以下版本，对应依赖如下
+     * compileOnly 'org.projectlombok:lombok:1.18.4'
+     **/
     // Lombok依赖
     compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.16.0'
     /*使用了 annotationProcessor 的指的是编译时注解,是APT(Annotation Processing Tool)工具中的一种，随着Android Gradle 插件 2.2 版本的发布，
      *Android Gradle 插件提供了名为 annotationProcessor 的功能来完全代替 android-apt，不需要引入，可以直接在build.gradle文件中使用。*/
     // 需要在Gradle的依赖中加入annotationProcessor,否则Lombok还是会失效,运行时报错
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.16.0'
+    testCompileOnly group: 'org.projectlombok', name: 'lombok', version: '1.16.0'
+    testAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.16.0'
 
 
 
 }
+
+
+

@@ -28,4 +28,11 @@ public class MyText {
 
 	}
 	
+	/*@Bean
+	public StringUtils getStringUtils() throws Exception {
+		// 创建对象
+		System.out.println("创建StringUtils");
+		return StringUtils.class.newInstance();
+	}*/
+	
 }

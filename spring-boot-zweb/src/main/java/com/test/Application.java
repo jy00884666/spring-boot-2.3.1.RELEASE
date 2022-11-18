@@ -20,22 +20,6 @@ public class Application {
 		
 		// 启动类入口
 		ConfigurableApplicationContext context = SpringApplication.run(Application.class);
-		// 从 SpringBoot 容器中获取对象
-		Person person = context.getBean(Person.class);
-		person.setName("aaa");
-		person.setSex("18");
-		System.out.println("person=" + person);
-		
-		// 超出目录,需要用 scanBasePackages 属性才能扫描到,也可以通过@Bean的方式
-		StringUtils stringUtils = context.getBean(StringUtils.class);
-		System.out.println("stringUtils=" + stringUtils);
 	}
-	
-	/*@Bean
-	public StringUtils getStringUtils() throws Exception {
-		// 创建对象
-		System.out.println("创建StringUtils");
-		return StringUtils.class.newInstance();
-	}*/
 	
 }
