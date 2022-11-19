@@ -17,4 +17,8 @@ public class TestController {
 		return "hello word!!!";
 	}
 	
+	@RequestMapping("/sayHello")
+	public String sayHello(String who) {
+		return "hello word!!!" + who;
+	}
 }
