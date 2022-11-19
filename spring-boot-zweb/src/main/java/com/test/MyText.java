@@ -7,6 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 /*SpringMVC 测试,跑SpringBoot用Application.java*/
 public class MyText {
 	
@@ -20,7 +23,9 @@ public class MyText {
 		//beanApply();
 		
 		// 模拟post请求
-		sendpost();
+		//sendpost();
+		
+		
 	}
 	
 	/**
