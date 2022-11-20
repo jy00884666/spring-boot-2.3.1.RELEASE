@@ -16,15 +16,15 @@
 
 package org.springframework.boot.env;
 
+import org.springframework.core.env.PropertySource;
+import org.springframework.core.io.Resource;
+import org.springframework.util.ClassUtils;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import org.springframework.core.env.PropertySource;
-import org.springframework.core.io.Resource;
-import org.springframework.util.ClassUtils;
 
 /**
  * Strategy to load '.yml' (or '.yaml') files into a {@link PropertySource}.
@@ -35,22 +35,25 @@ import org.springframework.util.ClassUtils;
  * @since 1.0.0
  */
 public class YamlPropertySourceLoader implements PropertySourceLoader {
-
+	
 	@Override
 	public String[] getFileExtensions() {
-		return new String[] { "yml", "yaml" };
+		return new String[]{"yml", "yaml"};
 	}
-
+	
 	@Override
 	public List<PropertySource<?>> load(String name, Resource resource) throws IOException {
+		// 如果不存在 `org.yaml.snakeyaml.Yaml` 这个 Class 对象，则抛出异常
 		if (!ClassUtils.isPresent("org.yaml.snakeyaml.Yaml", null)) {
 			throw new IllegalStateException(
 					"Attempted to load " + name + " but snakeyaml was not found on the classpath");
 		}
+		// 通过 Yaml 解析该文件资源
 		List<Map<String, Object>> loaded = new OriginTrackedYamlLoader(resource).load();
 		if (loaded.isEmpty()) {
 			return Collections.emptyList();
 		}
+		// 将上面获取到的 Map 集合们一一封装成 OriginTrackedMapPropertySource 对象
 		List<PropertySource<?>> propertySources = new ArrayList<>(loaded.size());
 		for (int i = 0; i < loaded.size(); i++) {
 			String documentNumber = (loaded.size() != 1) ? " (document #" + i + ")" : "";
@@ -59,5 +62,5 @@ public class YamlPropertySourceLoader implements PropertySourceLoader {
 		}
 		return propertySources;
 	}
-
+	
 }

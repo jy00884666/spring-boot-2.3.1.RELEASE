@@ -48,9 +48,12 @@ class FilteredPropertySource extends PropertySource<PropertySource<?>> {
 
 	static void apply(ConfigurableEnvironment environment, String propertySourceName, Set<String> filteredProperties,
 			Consumer<PropertySource<?>> operation) {
+		// 获取当前环境下所有的资源加载器
 		MutablePropertySources propertySources = environment.getPropertySources();
+		// 根据 propertySourceName 从众多的资源加载器中获取对应的加载器,默认的没有
 		PropertySource<?> original = propertySources.get(propertySourceName);
 		if (original == null) {
+			// 此处会回调之前在apply方法中定义的Lambda表达式
 			operation.accept(null);
 			return;
 		}

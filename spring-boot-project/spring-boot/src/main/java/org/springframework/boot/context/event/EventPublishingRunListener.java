@@ -48,13 +48,13 @@ import org.springframework.util.ErrorHandler;
  * @since 1.0.0
  */
 public class EventPublishingRunListener implements SpringApplicationRunListener, Ordered {
-
+	
 	private final SpringApplication application;
-
+	
 	private final String[] args;
-
+	
 	private final SimpleApplicationEventMulticaster initialMulticaster;
-
+	
 	public EventPublishingRunListener(SpringApplication application, String[] args) {
 		this.application = application;
 		this.args = args;
@@ -63,29 +63,35 @@ public class EventPublishingRunListener implements SpringApplicationRunListener,
 			this.initialMulticaster.addApplicationListener(listener);
 		}
 	}
-
+	
 	@Override
 	public int getOrder() {
 		return 0;
 	}
-
+	
 	@Override
 	public void starting() {
 		this.initialMulticaster.multicastEvent(new ApplicationStartingEvent(this.application, this.args));
 	}
-
+	
+	/**
+	 * 进入这里会看到对应的发布事件：ApplicationEnvironmentPreparedEvent
+	 *
+	 * @param environment the environment
+	 */
 	@Override
 	public void environmentPrepared(ConfigurableEnvironment environment) {
+		// 发布 ApplicationEnvironmentPreparedEvent 事件,监听该事件的相关监听器会触发
 		this.initialMulticaster
 				.multicastEvent(new ApplicationEnvironmentPreparedEvent(this.application, this.args, environment));
 	}
-
+	
 	@Override
 	public void contextPrepared(ConfigurableApplicationContext context) {
 		this.initialMulticaster
 				.multicastEvent(new ApplicationContextInitializedEvent(this.application, this.args, context));
 	}
-
+	
 	@Override
 	public void contextLoaded(ConfigurableApplicationContext context) {
 		for (ApplicationListener<?> listener : this.application.getListeners()) {
@@ -96,19 +102,19 @@ public class EventPublishingRunListener implements SpringApplicationRunListener,
 		}
 		this.initialMulticaster.multicastEvent(new ApplicationPreparedEvent(this.application, this.args, context));
 	}
-
+	
 	@Override
 	public void started(ConfigurableApplicationContext context) {
 		context.publishEvent(new ApplicationStartedEvent(this.application, this.args, context));
 		AvailabilityChangeEvent.publish(context, LivenessState.CORRECT);
 	}
-
+	
 	@Override
 	public void running(ConfigurableApplicationContext context) {
 		context.publishEvent(new ApplicationReadyEvent(this.application, this.args, context));
 		AvailabilityChangeEvent.publish(context, ReadinessState.ACCEPTING_TRAFFIC);
 	}
-
+	
 	@Override
 	public void failed(ConfigurableApplicationContext context, Throwable exception) {
 		ApplicationFailedEvent event = new ApplicationFailedEvent(this.application, this.args, context, exception);
@@ -116,8 +122,7 @@ public class EventPublishingRunListener implements SpringApplicationRunListener,
 			// Listeners have been registered to the application context so we should
 			// use it at this point if we can
 			context.publishEvent(event);
-		}
-		else {
+		} else {
 			// An inactive context may not have a multicaster so we use our multicaster to
 			// call all of the context's listeners instead
 			if (context instanceof AbstractApplicationContext) {
@@ -130,16 +135,16 @@ public class EventPublishingRunListener implements SpringApplicationRunListener,
 			this.initialMulticaster.multicastEvent(event);
 		}
 	}
-
+	
 	private static class LoggingErrorHandler implements ErrorHandler {
-
+		
 		private static final Log logger = LogFactory.getLog(EventPublishingRunListener.class);
-
+		
 		@Override
 		public void handleError(Throwable throwable) {
 			logger.warn("Error calling ApplicationEventListener", throwable);
 		}
-
+		
 	}
-
+	
 }

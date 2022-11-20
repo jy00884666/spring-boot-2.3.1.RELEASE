@@ -26,38 +26,44 @@ import org.springframework.util.ClassUtils;
  * @since 2.0.0
  */
 public enum WebApplicationType {
-
+	
 	/**
 	 * The application should not run as a web application and should not start an
 	 * embedded web server.
 	 */
 	NONE,
-
+	
 	/**
 	 * The application should run as a servlet-based web application and should start an
 	 * embedded servlet web server.
 	 */
 	SERVLET,
-
+	
 	/**
 	 * The application should run as a reactive web application and should start an
 	 * embedded reactive web server.
 	 */
 	REACTIVE;
-
-	private static final String[] SERVLET_INDICATOR_CLASSES = { "javax.servlet.Servlet",
-			"org.springframework.web.context.ConfigurableWebApplicationContext" };
-
+	
+	/**
+	 * 这些静态变量其实就是一些绑定的Java类的全类路径
+	 */
+	
+	private static final String[] SERVLET_INDICATOR_CLASSES = {"javax.servlet.Servlet",
+			"org.springframework.web.context.ConfigurableWebApplicationContext"};
+	
 	private static final String WEBMVC_INDICATOR_CLASS = "org.springframework.web.servlet.DispatcherServlet";
-
+	
 	private static final String WEBFLUX_INDICATOR_CLASS = "org.springframework.web.reactive.DispatcherHandler";
-
+	
 	private static final String JERSEY_INDICATOR_CLASS = "org.glassfish.jersey.servlet.ServletContainer";
-
-	private static final String SERVLET_APPLICATION_CONTEXT_CLASS = "org.springframework.web.context.WebApplicationContext";
-
-	private static final String REACTIVE_APPLICATION_CONTEXT_CLASS = "org.springframework.boot.web.reactive.context.ReactiveWebApplicationContext";
-
+	
+	private static final String SERVLET_APPLICATION_CONTEXT_CLASS = "org.springframework.web.context" +
+			".WebApplicationContext";
+	
+	private static final String REACTIVE_APPLICATION_CONTEXT_CLASS = "org.springframework.boot.web.reactive.context" +
+			".ReactiveWebApplicationContext";
+	
 	static WebApplicationType deduceFromClasspath() {
 		// 如果存在DispatcherHandler,不是DispatcherServlet,也不是ServletContainer
 		if (ClassUtils.isPresent(WEBFLUX_INDICATOR_CLASS, null) && !ClassUtils.isPresent(WEBMVC_INDICATOR_CLASS, null)
@@ -75,7 +81,7 @@ public enum WebApplicationType {
 		// 这个表示web项目
 		return WebApplicationType.SERVLET;
 	}
-
+	
 	static WebApplicationType deduceFromApplicationContext(Class<?> applicationContextClass) {
 		if (isAssignable(SERVLET_APPLICATION_CONTEXT_CLASS, applicationContextClass)) {
 			return WebApplicationType.SERVLET;
@@ -85,14 +91,13 @@ public enum WebApplicationType {
 		}
 		return WebApplicationType.NONE;
 	}
-
+	
 	private static boolean isAssignable(String target, Class<?> type) {
 		try {
 			return ClassUtils.resolveClassName(target, null).isAssignableFrom(type);
-		}
-		catch (Throwable ex) {
+		} catch (Throwable ex) {
 			return false;
 		}
 	}
-
+	
 }
