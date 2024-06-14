@@ -20,7 +20,7 @@ public class MyText {
 		System.out.println("打印默认编码:" + System.getProperty("file.encoding"));
 		
 		// Bean应用测试
-		//beanApply();
+		beanApply();
 		
 		// 模拟post请求
 		//sendpost();
@@ -49,6 +49,7 @@ public class MyText {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Application.class);
 		// 获取对象Bean,创建Spirng容易若传入Person.class,则Person对象中可以没有 @Component 注解
 		Person person = (Person) context.getBean("person");
+		System.out.println("IOC容器取对象" + person);
 		person.setName("aaa");
 		person.setSex("18");
 		System.out.println("person:" + person);
